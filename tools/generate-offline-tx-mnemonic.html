@@ -1,0 +1,158 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <h2>Step 1: select network</h2>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="networkRadio" id="mainNet" value="main" checked>
+                        <label class="form-check-label" for="mainNet">
+                            Main
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="networkRadio" id="testNet" value="test">
+                        <label class="form-check-label" for="testNet">
+                            Test
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="networkRadio" id="devNet" value="dev">
+                        <label class="form-check-label" for="devNet">
+                            Dev
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="networkRadio" id="bountytNet" value="bounty">
+                        <label class="form-check-label" for="bountyNet">
+                            Bounty
+                        </label>
+                    </div>
+                </div>
+                <br><br>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-success" id="selectNetwork">Choose</button>
+                    </div>
+                </div>
+                <br>
+                <div class="col-xs-12 col-md-12">
+                    <h2 class="d-none">Step 2: generate offline transaction</h2>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Private Key (24 words)</label>
+                        <input type="text" class="form-control" id="privateKeyMnemonic" placeholder="Commas don't matter">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Recipient</label>
+                        <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="NQXX XXXX ....">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>NIM</label>
+                        <input type="number" class="form-control" id="value" min="0" placeholder="Default: 0" value="0">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Fee</label>
+                        <input type="number" class="form-control" id="fee" min="0" placeholder="Default: 0" value="0">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Validity start height</label>
+                        <input type="number" class="form-control" id="validityStartHeight" min="0" placeholder="Current block height is recommended">
+                    </div>
+                </div>
+                <br>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <button id="generateButton" class="btn btn-success">Generate transaction</button>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Transaction hash</label>
+                        <input type="text" disabled class="form-control" id="transactionHash"  placeholder="...">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group d-none">
+                        <label>Serialized transaction</label>
+                        <textarea id="serializedTransaction" class="form-control" rows="4" disabled></textarea>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group d-none">
+                        <label>Raw transaction</label>
+                        <textarea id="rawTransaction" class="form-control" rows="4" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+            
+            $("#selectNetwork").on("click", function() {
+                $(this).prop("disabled", true)
+                $(".d-none").removeClass("d-none")
+                Nimiq.GenesisConfig[$("input[name='networkRadio']:checked").val()].call(this)
+            })
+            
+            $("#generateButton").on("click", () => {
+                try {
+                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/, /g, " ").replace(/,/g, " "))
+                    const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
+                    const recipient = Nimiq.Address.fromString($("#publicKeyUserFriendly").val())
+                    const value = Number(Nimiq.Policy.coinsToSatoshis($("#value").val()))
+                    const fee = Number($("#fee").val())
+                    const validityStartHeight = Number($("#validityStartHeight").val())
+                    const transaction = wallet.createTransaction(recipient, value, fee, validityStartHeight)
+                    if(!transaction.verify())
+                        throw new Error("Transaction verification failed.")
+                    $("#rawTransaction").text(transaction)
+                    $("#serializedTransaction").text(transaction.serialize())
+                    $("#transactionHash").val(transaction.hash().toHex())
+                } catch (error) {
+                    console.log(error)
+                    alert(error.message)
+                }
+            })
+        </script>
+    </body>
+</html>

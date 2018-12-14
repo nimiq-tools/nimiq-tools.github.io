@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <button id="generateButton" class="btn btn-success">Generate new wallet</button>                        
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <h2>Public Key</h2>
+                    <div class="form-group">
+                        <label>User Friendly Address</label>
+                        <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Public Key</label>
+                        <input type="text" class="form-control" id="publicKey" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Public Key (Serialized)</label>
+                        <input type="text" class="form-control" id="publicKeySerialize" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Public Key (Hex)</label>
+                        <input type="text" class="form-control" id="publicKeyHex" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-control" id="address" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Address (Serialized)</label>
+                        <input type="text" class="form-control" id="addressSerialize" placeholder="..." disabled>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <h2>Private Key</h2>
+                    <div class="form-group">
+                        <label>24 words</label>
+                        <textarea class="form-control" id="privateKeyMnemonic" placeholder="..." rows="4" disabled></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Private Key</label>
+                        <input type="text" class="form-control" id="privateKey" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Private Key (Serialized)</label>
+                        <input type="text" class="form-control" id="privateKeySerialize" placeholder="..." disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Private Key (Hex)</label>
+                        <input type="text" class="form-control" id="privateKeyHex" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <h2>Wallet</h2>
+                    <div class="form-group">
+                        <label>Wallet seed</label>
+                        <textarea class="form-control" id="walletSeed" placeholder="..." rows="4" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+                generateAddress()
+            })()
+
+            function generateAddress() {
+                try {
+                    const wallet = Nimiq.Wallet.generate()
+                    $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
+                    $("#publicKey").val(wallet.publicKey)
+                    $("#publicKeySerialize").val(wallet.publicKey.serialize())
+                    $("#publicKeyHex").val(wallet.publicKey.toHex())
+                    $("#address").val(wallet.publicKey.toAddress())
+                    $("#addressSerialize").val(wallet.publicKey.toAddress().serialize())
+
+                    $("#privateKeyMnemonic").val(String(Nimiq.MnemonicUtils.entropyToMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
+                    $("#privateKey").val(wallet.keyPair.privateKey)
+                    $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
+                    $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
+
+                    $("#walletSeed").val(`${wallet.publicKey.toHex()}${wallet.keyPair.privateKey.toHex()}`)
+                } catch (error) {
+                    alert(error.message)
+                    console.log(error)
+                }
+            }
+            
+            $("#generateButton").on("click", () => generateAddress())
+        </script>
+    </body>
+</html>

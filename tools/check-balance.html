@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <h2>Step 1: select network</h2>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="networkRadio" id="mainNet" value="main" checked>
+                <label class="form-check-label" for="mainNet">
+                    Main
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="networkRadio" id="testNet" value="test">
+                <label class="form-check-label" for="testNet">
+                    Test
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="networkRadio" id="devNet" value="dev">
+                <label class="form-check-label" for="devNet">
+                    Dev
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="networkRadio" id="bountytNet" value="bounty">
+                <label class="form-check-label" for="bountyNet">
+                    Bounty
+                </label>
+            </div>
+            <br>
+            <div class="form-group">
+                <button id="connectButton" class="btn btn-danger">Connect</button>
+            </div>
+            <br>
+            <h2 class="d-none">Step 2: Provide the address</h2>
+            <div class="form-group d-none">
+                <label>Nimiq Address</label>
+                <input type="text" class="form-control" id="publicUserFriendly" placeholder="...">
+            </div>
+            <div class="form-group d-none">
+                <button class="btn btn-success" id="checkBalance">Check balance</button>
+                <span id="balance">0</span> NIM
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+
+            async function connect(network) {
+                Nimiq.GenesisConfig[network].call(this);
+                $.consensus = await Nimiq.Consensus.nano()
+        
+                $.blockchain = $.consensus.blockchain
+                $.mempool = $.consensus.mempool
+                $.network = $.consensus.network
+
+                $.consensus.on('established', () => {
+                    $.established = true
+                    $("#connectButton").text("Connected")
+                    $("#connectButton").addClass("btn-success")
+                    $("#connectButton").removeClass("btn-warning")
+                    $(".d-none").removeClass("d-none")
+                })
+                $.consensus.on('lost', () => {
+                    $.established = false
+                });
+                
+                $.network.connect();
+            }
+
+            $("#connectButton").on("click", function() {
+                $(this).text("Connecting...")
+                $(this).prop("disabled", true)
+                $(this).addClass("btn-warning")
+                $(this).removeClass("btn-danger")
+                connect($("input[name='networkRadio']:checked").val())
+            })
+            
+            $("#checkBalance").on("click", async () => {
+                try {
+                    if(!$.established)
+                        throw new Error("No consensus. Try to reload the page.")
+                    const address = Nimiq.Address.fromUserFriendlyAddress($("#publicUserFriendly").val())
+                    const account = await $.consensus.getAccount(address);
+                    account ? $("#balance").text(Nimiq.Policy.satoshisToCoins(account.balance)) : 0
+                } catch (error) {
+                    console.log(error)
+                    alert(error.message)
+                }
+            })
+
+        </script>
+    </body>
+</html>

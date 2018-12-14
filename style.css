@@ -1,0 +1,15 @@
+html {
+    overflow-y: scroll;
+}
+
+.card {
+    min-height: 350px;
+}
+
+p.card-text {
+    min-height: 150px;
+}
+
+h5.card-title {
+    min-height: 90px;
+}
