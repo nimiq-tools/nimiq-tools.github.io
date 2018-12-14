@@ -18,9 +18,6 @@
                         <label>24 words</label>
                         <input autofocus type="text" class="form-control" id="privateKeyMnemonic" placeholder="Commas don't matter">
                     </div>
-                    <div class="form-group">
-                        <button id="importButton" class="btn btn-success">Check information</button>
-                    </div>
                 </div>
             </div>
             <br>
@@ -91,7 +88,7 @@
                 await Nimiq.load()
             })()
 
-            $("#importButton").on("click", () => {
+            $("#privateKeyMnemonic").on("input", () => {
                 try {
                     const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/, /g, " ").replace(/,/g, " "))
                     const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
@@ -110,7 +107,7 @@
 
                     $("#walletSeed").val(`${wallet.publicKey.toHex()}${wallet.keyPair.privateKey.toHex()}`)
                 } catch (error) {
-                    alert(error.message)
+                    $("input:disabled, textarea:disabled").val('')
                     console.log(error)
                 }
             })

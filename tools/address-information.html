@@ -1,0 +1,72 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <h2>Address information</h2>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <label>Nimiq address</label>
+                        <input autofocus type="text" class="form-control" id="publicKeyUserFriendly" placeholder="NQXX or base64 or hex">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row d-none">
+                <div class="col-xs-12 col-md-12">
+                    <h2>Information</h2>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <div class="form-group">
+                        <label>Address (user friendly)</label>
+                        <textarea class="form-control" id="publicAddressUserFriendly" placeholder="..." rows="2" disabled></textarea>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <div class="form-group">
+                        <label>Address (base64)</label>
+                        <textarea class="form-control" id="publicAddressBase64" placeholder="..." rows="2" disabled></textarea>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <div class="form-group">
+                        <label>Address (hex)</label>
+                        <textarea class="form-control" id="publicAddressHex" placeholder="..." rows="2" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+
+            $("#publicKeyUserFriendly").on("input", () => {
+                try {
+                    const address = Nimiq.Address.fromString($("#publicKeyUserFriendly").val())
+                    $(".d-none").removeClass("d-none")
+                    $("#publicAddressUserFriendly").val(address.toUserFriendlyAddress())
+                    $("#publicAddressBase64").val(Nimiq.BufferUtils.toBase64(address.serialize()))
+                    $("#publicAddressHex").val(address.toHex())
+                } catch (error) {
+                    $("input:disabled, textarea:disabled").val('')
+                    console.log(error)
+                }
+            })
+        </script>
+    </body>
+</html>
