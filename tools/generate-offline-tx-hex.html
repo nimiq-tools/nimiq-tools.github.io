@@ -68,7 +68,7 @@
                 <div class="col-xs-12 col-md-12">
                     <div class="form-group d-none">
                         <label>Recipient</label>
-                        <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="NQXX XXXX ....">
+                        <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="NQXX XXXX or base64 or hex">
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-12">
@@ -140,7 +140,7 @@
                     const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(Nimiq.BufferUtils.fromHex($("#privateKeyHex").val()))))
                     const recipient = Nimiq.Address.fromString($("#publicKeyUserFriendly").val())
                     const value = Number(Nimiq.Policy.coinsToSatoshis($("#value").val()))
-                    const fee = Number($("#fee").val())
+                    const fee = Number(Nimiq.Policy.coinsToSatoshis($("#fee").val()))
                     const validityStartHeight = Number($("#validityStartHeight").val())
                     const transaction = wallet.createTransaction(recipient, value, fee, validityStartHeight)
                     if(!transaction.verify())

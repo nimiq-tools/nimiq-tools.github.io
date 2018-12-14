@@ -1,0 +1,181 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+        <title>Nimiq Tools | Set of online and offline utilities</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <h2>Send offline transaction</h2>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <label>Serialized transaction</label>
+                        <textarea class="form-control" id="transaction" autofocus placeholder="E.g. 56,113,44,12,66,55..." rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <h2 class="d-none">Transaction overview</h2>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Sender</label>
+                        <input type="text" class="form-control" id="senderUserFriendly" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Recipient</label>
+                        <input type="text" class="form-control" id="recipientUserFriendly" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Value</label>
+                        <input type="text" class="form-control" id="value" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Fee</label>
+                        <input type="text" class="form-control" id="fee" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Validity start height</label>
+                        <input type="text" class="form-control" id="validityStartHeight" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Network</label>
+                        <input type="text" class="form-control" id="network" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row d-none">
+                <div class="col-xs-12-col-md-12">
+                    <div class="form-group">
+                        <button id="connectButton" class="btn btn-success">Connect to network</button>
+                        <button id="broadcastTransaction" class="btn btn-danger" disabled>Send transaction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+
+            let genesisInit = false
+            let tx = ""
+
+            function getNetworkName (networkId) {
+                for (const key in Nimiq.GenesisConfig.CONFIGS) {
+                    if (Nimiq.GenesisConfig.CONFIGS.hasOwnProperty(key)) {
+                        const element = Nimiq.GenesisConfig.CONFIGS[key]
+                        if(networkId == element.NETWORK_ID)
+                            return element.NETWORK_NAME
+                    }
+                }
+            }
+
+            async function connect(network) {
+                $.consensus = await Nimiq.Consensus.light()
+        
+                $.blockchain = $.consensus.blockchain
+                $.mempool = $.consensus.mempool
+                $.network = $.consensus.network
+
+                $.consensus.on('established', () => {
+                    $.established = true
+                    $("#connectButton").text("Connected")
+                    $("#connectButton").addClass("btn-success")
+                    $("#connectButton").removeClass("btn-warning")
+                    $("#broadcastTransaction").prop("disabled", false)
+                    $("#broadcastTransaction").addClass("btn-success")
+                    $("#broadcastTransaction").removeClass("btn-danger")
+                    $(".d-none").removeClass("d-none")
+                })
+                $.consensus.on('lost', () => {
+                    $.established = false
+                });
+                
+                $.network.connect();
+            }
+
+            $("#connectButton").on("click", function() {
+                $(this).text("Connecting...")
+                $(this).prop("disabled", true)
+                $(this).addClass("btn-warning")
+                $(this).removeClass("btn-danger")
+                connect($("input[name='networkRadio']:checked").val())
+            })
+
+            $("#broadcastTransaction").on("click", async function() {
+                $(this).prop("disabled", true)
+                $.mempool.on('transaction-added', async tx2 => {
+                    if(tx.equals(tx2)) {
+                        alert("Transaction succesfully send.")
+                        $("#broadcastTransaction").prop("disabled", false)
+                    }
+                })
+
+                const ret = await $.mempool.pushTransaction(tx);
+                if (ret < 0) {
+                    alert(`Transaction not accepted: ${ret}`)
+                    $("#broadcastTransaction").prop("disabled", false)
+                    e.code = ret;
+                    throw e;
+                }
+            })
+
+            $("#transaction").on("input", () => {
+                try {
+                    const transaction = Nimiq.BasicTransaction.unserialize(new Nimiq.SerialBuffer($("#transaction").val().split(',')))
+                    if(!genesisInit) {
+                        Nimiq.GenesisConfig[getNetworkName(transaction.networkId)].call(this)
+                        genesisInit = true
+                    }
+                    if(!transaction.verify())
+                        throw new Error("Transaction invalid.")
+
+                    tx = transaction
+                    $("#senderUserFriendly").val(transaction.sender.toUserFriendlyAddress())
+                    $("#recipientUserFriendly").val(transaction.recipient.toUserFriendlyAddress())
+                    $("#value").val(Nimiq.Policy.satoshisToCoins(transaction.value)+ " NIM")
+                    $("#fee").val(Nimiq.Policy.satoshisToCoins(transaction.fee)+ " NIM")
+                    $("#validityStartHeight").val(transaction.validityStartHeight)
+                    $("#network").val(getNetworkName(transaction.networkId))
+                    $(".d-none").removeClass("d-none")
+                } catch (error) {
+                    $("input:disabled").val('')
+                    console.log(error)
+                }
+            })
+        </script>
+    </body>
+</html>
