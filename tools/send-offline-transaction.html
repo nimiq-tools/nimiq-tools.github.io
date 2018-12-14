@@ -72,6 +72,14 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Hash</label>
+                        <input type="text" class="form-control" id="hash" placeholder="..." disabled>
+                    </div>
+                </div>
+            </div>
             <div class="row d-none">
                 <div class="col-xs-12-col-md-12">
                     <div class="form-group">
@@ -170,6 +178,7 @@
                     $("#fee").val(Nimiq.Policy.satoshisToCoins(transaction.fee)+ " NIM")
                     $("#validityStartHeight").val(transaction.validityStartHeight)
                     $("#network").val(getNetworkName(transaction.networkId))
+                    $("#hash").val(transaction.hash().toHex())
                     $(".d-none").removeClass("d-none")
                 } catch (error) {
                     $("input:disabled").val('')
