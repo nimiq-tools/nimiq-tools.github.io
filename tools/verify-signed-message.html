@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+        <title>Nimiq Tools | Set of online and offline utilities</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="alert alert-success d-none" id="alertValid" role="alert">
+                        The signed message is valid.
+                    </div>
+                    <div class="alert alert-danger d-none" id="alertInvalid" role="alert">
+                        The signed message is <strong>not</strong> valid.
+                    </div>
+                    <div class="alert alert-danger d-none" id="alertFormat" role="alert">
+                        The given format is not supported by Nimiq Tools.
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea class="form-control" id="data" placeholder="..." rows="8"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12-col-md-12">
+                    <div class="form-group">
+                        <button id="verifyButton" class="btn btn-success">Verify</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+
+            $("#data").on("input", () => {
+                $(".alert").addClass("d-none");
+            })
+
+            $("#verifyButton").on("click", () => {
+                try {
+                    const data = $("#data").val()
+                    const parsed = JSON.parse(data)
+                    if(parsed.signer !== "nimiq-tools")
+                        throw new Error("Invalid signer.")
+
+                    const buff = Nimiq.BufferUtils.fromBase64(parsed.proof)
+                    const proof = Nimiq.SignatureProof.unserialize(buff)
+                    
+                    if(proof.verify(Nimiq.Address.fromString(parsed.address), Nimiq.BufferUtils.fromAscii(parsed.message)))
+                        $("#alertValid").removeClass("d-none")
+                    else
+                        $("#alertInvalid").removeClass("d-none")
+                } catch (error) {
+                    $("#alertFormat").removeClass("d-none")
+                    console.log(error)
+                }
+            })
+        </script>
+    </body>
+</html>

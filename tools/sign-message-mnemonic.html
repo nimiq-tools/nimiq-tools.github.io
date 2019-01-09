@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../style.css">
+        <title>Nimiq Tools | Set of online and offline utilities</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+        </nav>
+        <div class="container">
+            <br><br>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <label>24 words</label>
+                        <input autofocus type="text" class="form-control" id="privateKeyMnemonic" placeholder="Commas don't matter">
+                    </div>
+                    <div class="form-group d-none">
+                        <label>Nimiq Address</label>
+                        <input type="text" class="form-control" id="publicKey" placeholder="NQXX XXXX or base64 or hex">
+                    </div>
+                    <div class="form-group d-none">
+                        <label>Message</label>
+                        <textarea class="form-control" id="message" placeholder="..." rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row d-none">
+                <div class="col-xs-12-col-md-12">
+                    <div class="form-group">
+                        <button id="signButton" class="btn btn-success">Sign Message</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group d-none">
+                        <label>Signature</label>
+                        <textarea class="form-control" id="signature" placeholder="..." rows="8" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+        <script src="../src/Bootstrap/bootstrap.min.js"></script>
+        <script src="../src/Nimiq/nimiq.js"></script>
+
+        <script>
+            (async () => {
+                await Nimiq.load()
+            })()
+
+            let keyPair
+
+            $("#privateKeyMnemonic").on("input", () => {
+                try {
+                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/"/g, "").replace(/, /g, " ").replace(/,/g, " "))
+                    keyPair = Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
+                    $(".d-none").removeClass("d-none")
+                } catch (error) {
+                    $("#publicKey").val('')
+                    $("#message").val('')
+                    console.log(error)
+                }
+            })
+
+            $("#publicKey").on("input", () => {
+                try {
+                    const address = Nimiq.Address.fromString($("#publicKey").val())
+                } catch (error) {
+                    $("#privateKeyMnemonic").val('')
+                    $("#message").val('')
+                    console.log(error)
+                }
+            })
+
+            $("#signButton").on("click", () => {
+                try {
+                    const message = $("#message").val()
+                    const buffer = Nimiq.BufferUtils.fromAscii(message)
+                    const signature = Nimiq.Signature.create(keyPair.privateKey, keyPair.publicKey, buffer)
+                    const proof = Nimiq.SignatureProof.singleSig(keyPair.publicKey, signature)
+                    if(!proof.verify(Nimiq.Address.fromString($("#publicKey").val()), buffer))
+                        throw new Error("Verification failed")
+                    
+                    const data = {
+                        address: $("#publicKey").val(),
+                        message: message,
+                        proof: Nimiq.BufferUtils.toBase64(proof.serialize()),
+                        signer: "nimiq-tools",
+                    }
+
+                    $("#signature").val(JSON.stringify(data, undefined, 4))
+                } catch (error) {
+                    $("#signature").val('')
+                    alert("Verification failed check given information.")
+                    console.log(error)
+                }
+            })
+        </script>
+    </body>
+</html>
