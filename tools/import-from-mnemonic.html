@@ -91,7 +91,7 @@
 
             $("#privateKeyMnemonic").on("input", () => {
                 try {
-                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/, /g, " ").replace(/,/g, " "))
+                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/"/g, "").replace(/, /g, " ").replace(/,/g, " "))
                     const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
                     $(".d-none").removeClass("d-none")
                     $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
