@@ -134,10 +134,26 @@
                 $(".d-none").removeClass("d-none")
                 Nimiq.GenesisConfig[$("input[name='networkRadio']:checked").val()].call(this)
             })
+
+            function mnemonicToEntropy(mnemonic) {
+                mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
+                try {
+                    return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                } catch (error) {
+                    // Ignore
+                }
+
+                try {
+                    return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                } catch (error) {
+                    // Ignore
+                }
+                throw new Error("Invalid mnemonic.")
+            }
             
             $("#generateButton").on("click", () => {
                 try {
-                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/, /g, " ").replace(/,/g, " "))
+                    const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
                     const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
                     const recipient = Nimiq.Address.fromString($("#publicKeyUserFriendly").val())
                     const value = Number(Nimiq.Policy.coinsToSatoshis($("#value").val()))

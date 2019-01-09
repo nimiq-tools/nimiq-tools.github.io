@@ -89,9 +89,25 @@
                 await Nimiq.load()
             })()
 
+            function mnemonicToEntropy(mnemonic) {
+                mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
+                try {
+                    return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                } catch (error) {
+                    // Ignore
+                }
+
+                try {
+                    return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                } catch (error) {
+                    // Ignore
+                }
+                throw new Error("Invalid mnemonic.")
+            }
+
             $("#privateKeyMnemonic").on("input", () => {
                 try {
-                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy($("#privateKeyMnemonic").val().replace(/"/g, "").replace(/, /g, " ").replace(/,/g, " "))
+                    const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
                     const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
                     $(".d-none").removeClass("d-none")
                     $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
