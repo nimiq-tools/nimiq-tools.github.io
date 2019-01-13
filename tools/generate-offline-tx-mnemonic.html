@@ -61,8 +61,8 @@
                 </div>
                 <div class="col-xs-12 col-md-12">
                     <div class="form-group d-none">
-                        <label>Private Key (24 words)</label>
-                        <input type="text" class="form-control" id="privateKeyMnemonic" placeholder="Commas don't matter">
+                        <label>Private Key (24 words or hex format)</label>
+                        <input type="text" class="form-control" id="privateKey" placeholder="24 words: commas don't matter, hex: e.g. 670013ae176575524a0d4c937310b17b9033a6b512de76af0c8bd6d8495d86c4">
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-12">
@@ -119,6 +119,20 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group d-none">
+                        <label>Serialized transaction (base64)</label>
+                        <textarea id="serializedTransactionBase64" class="form-control" rows="4" disabled></textarea>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group d-none">
+                        <label>Serialized transaction (hex)</label>
+                        <textarea id="serializedTransactionHex" class="form-control" rows="4" disabled></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
         <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
         <script src="../src/Bootstrap/bootstrap.min.js"></script>
@@ -134,27 +148,44 @@
                 $(".d-none").removeClass("d-none")
                 Nimiq.GenesisConfig[$("input[name='networkRadio']:checked").val()].call(this)
             })
-
-            function mnemonicToEntropy(mnemonic) {
-                mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
-                try {
-                    return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
-                } catch (error) {
-                    // Ignore
-                }
-
-                try {
-                    return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
-                } catch (error) {
-                    // Ignore
-                }
-                throw new Error("Invalid mnemonic.")
-            }
             
             $("#generateButton").on("click", () => {
+                function privateKeyFromHex(hex) {
+                    try {
+                        return new Nimiq.PrivateKey(Nimiq.BufferUtils.fromHex(hex))
+                    } catch (error) {
+                        return undefined
+                    }
+                }
+
+                function privateKeyFromMnemonic(mnemonic) {
+                    mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
+                    try {
+                        return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                    } catch (error) {
+                        // Ignore
+                    }
+
+                    try {
+                        return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                    } catch (error) {
+                        // Ignore
+                    }
+
+                    return undefined
+                }
+
                 try {
-                    const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
-                    const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
+                    const keyUserInput = $("#privateKey").val()
+
+                    const privateKey =
+                        privateKeyFromHex(keyUserInput) ||
+                        privateKeyFromMnemonic(keyUserInput)
+
+                    if (!privateKey)
+                        throw new Error("Invalid mnemonic or hex key.")
+
+                    const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(privateKey))
                     const recipient = Nimiq.Address.fromString($("#publicKeyUserFriendly").val())
                     const value = Number(Nimiq.Policy.coinsToSatoshis($("#value").val()))
                     const fee = Number(Nimiq.Policy.coinsToSatoshis($("#fee").val()))
@@ -162,8 +193,11 @@
                     const transaction = wallet.createTransaction(recipient, value, fee, validityStartHeight)
                     if(!transaction.verify())
                         throw new Error("Transaction verification failed.")
+                    const serializedTransaction = transaction.serialize()
                     $("#rawTransaction").text(transaction)
-                    $("#serializedTransaction").text(transaction.serialize())
+                    $("#serializedTransaction").text(serializedTransaction)
+                    $("#serializedTransactionBase64").text(Nimiq.BufferUtils.toBase64(serializedTransaction))
+                    $("#serializedTransactionHex").text(Nimiq.BufferUtils.toHex(serializedTransaction))
                     $("#transactionHash").val(transaction.hash().toHex())
                 } catch (error) {
                     console.log(error)
