@@ -21,7 +21,7 @@
                     </div>
                     <div class="form-group d-none">
                         <label>Nimiq Address</label>
-                        <input type="text" class="form-control" id="publicKey" placeholder="NQXX XXXX or base64 or hex">
+                        <input type="text" class="form-control" id="publicKey" disabled>
                     </div>
                     <div class="form-group d-none">
                         <label>Message</label>
@@ -76,19 +76,10 @@
                 try {
                     const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
                     keyPair = Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
+                    $("#publicKey").val(keyPair.publicKey.toAddress().toUserFriendlyAddress())
                     $(".d-none").removeClass("d-none")
                 } catch (error) {
                     $("#publicKey").val('')
-                    $("#message").val('')
-                    console.log(error)
-                }
-            })
-
-            $("#publicKey").on("input", () => {
-                try {
-                    const address = Nimiq.Address.fromString($("#publicKey").val())
-                } catch (error) {
-                    $("#privateKeyMnemonic").val('')
                     $("#message").val('')
                     console.log(error)
                 }
