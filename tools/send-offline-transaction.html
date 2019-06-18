@@ -112,7 +112,7 @@
             }
 
             async function connect(network) {
-                $.consensus = await Nimiq.Consensus.light()
+                $.consensus = await Nimiq.Consensus.nano()
         
                 $.blockchain = $.consensus.blockchain
                 $.mempool = $.consensus.mempool
@@ -145,6 +145,7 @@
 
             $("#broadcastTransaction").on("click", async function() {
                 $(this).prop("disabled", true)
+                $.consensus.addSubscriptions(Nimiq.Address.fromUserFriendlyAddress($("#recipientUserFriendly").val()))
                 $.mempool.on('transaction-added', async tx2 => {
                     if(tx.equals(tx2)) {
                         alert("Transaction succesfully send.")
@@ -152,7 +153,14 @@
                     }
                 })
 
-                const ret = await $.mempool.pushTransaction(tx);
+                $.mempool.on('transaction-mined', async tx2 => {
+                    if(tx.equals(tx2)) {
+                        alert("Transaction succesfully mined.")
+                        $("#broadcastTransaction").prop("disabled", false)
+                    }
+                })
+
+                const ret = await $.consensus.relayTransaction(tx);
                 if (ret < 0) {
                     alert(`Transaction not accepted: ${ret}`)
                     $("#broadcastTransaction").prop("disabled", false)
