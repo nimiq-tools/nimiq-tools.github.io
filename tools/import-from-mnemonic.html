@@ -21,6 +21,9 @@
                     </div>
                 </div>
             </div>
+            <p class="alert alert-warning" role="alert" id="seedWarning" style="display: none;">
+                <strong>Warning:</strong> These 24 words represent an Account Seed. All information on this page is about the first derived address only!
+            </p>
             <br>
             <div class="row d-none">
                 <div class="col-xs-12 col-md-6">
@@ -89,16 +92,24 @@
                 await Nimiq.load()
             })()
 
-            function mnemonicToEntropy(mnemonic) {
+            const derivationPath = "m/44'/242'/0'/0'"
+
+            function mnemonicToKeyPair(mnemonic) {
                 mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
                 try {
-                    return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                    $("#seedWarning").show()
+                    const masterKey = entropy.toExtendedPrivateKey()
+                    const derivedPrivateKey = masterKey.derivePath(derivationPath).privateKey
+                    return Nimiq.KeyPair.derive(derivedPrivateKey)
                 } catch (error) {
                     // Ignore
                 }
 
                 try {
-                    return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                    const entropy = Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                    $("#seedWarning").hide()
+                    return Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
                 } catch (error) {
                     // Ignore
                 }
@@ -107,8 +118,8 @@
 
             $("#privateKeyMnemonic").on("input", () => {
                 try {
-                    const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
-                    const wallet = new Nimiq.Wallet(Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize())))
+                    const keyPair = mnemonicToKeyPair($("#privateKeyMnemonic").val())
+                    const wallet = new Nimiq.Wallet(keyPair)
                     $(".d-none").removeClass("d-none")
                     $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
                     $("#publicKey").val(wallet.publicKey)
@@ -117,7 +128,7 @@
                     $("#address").val(wallet.publicKey.toAddress())
                     $("#addressSerialize").val(wallet.publicKey.toAddress().serialize())
 
-                    $("#privateKeyMnemonicWords").val(String(Nimiq.MnemonicUtils.entropyToMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
+                    $("#privateKeyMnemonicWords").val(String(Nimiq.MnemonicUtils.entropyToLegacyMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
                     $("#privateKey").val(wallet.keyPair.privateKey)
                     $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
                     $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
