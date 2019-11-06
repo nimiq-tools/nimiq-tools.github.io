@@ -55,17 +55,22 @@
             })()
 
             let keyPair
+            const derivationPath = "m/44'/242'/0'/0'"
 
-            function mnemonicToEntropy(mnemonic) {
+            function mnemonicToKeyPair(mnemonic) {
                 mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
                 try {
-                    return Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                    const masterKey = entropy.toExtendedPrivateKey()
+                    const derivedPrivateKey = masterKey.derivePath(derivationPath).privateKey
+                    return Nimiq.KeyPair.derive(derivedPrivateKey)
                 } catch (error) {
                     // Ignore
                 }
 
                 try {
-                    return Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                    const entropy = Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                    return Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
                 } catch (error) {
                     // Ignore
                 }
@@ -74,8 +79,7 @@
 
             $("#privateKeyMnemonic").on("input", () => {
                 try {
-                    const entropy = mnemonicToEntropy($("#privateKeyMnemonic").val())
-                    keyPair = Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
+                    keyPair = mnemonicToKeyPair($("#privateKeyMnemonic").val())
                     $("#publicKey").val(keyPair.publicKey.toAddress().toUserFriendlyAddress())
                     $(".d-none").removeClass("d-none")
                 } catch (error) {
@@ -93,7 +97,7 @@
                     const proof = Nimiq.SignatureProof.singleSig(keyPair.publicKey, signature)
                     if(!proof.verify(Nimiq.Address.fromString($("#publicKey").val()), buffer))
                         throw new Error("Verification failed")
-                    
+
                     const data = {
                         address: $("#publicKey").val(),
                         message: message,
