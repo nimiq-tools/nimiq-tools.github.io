@@ -99,7 +99,7 @@
                     $("#address").val(wallet.publicKey.toAddress())
                     $("#addressSerialize").val(wallet.publicKey.toAddress().serialize())
 
-                    $("#privateKeyMnemonic").val(String(Nimiq.MnemonicUtils.entropyToMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
+                    $("#privateKeyMnemonic").val(String(Nimiq.MnemonicUtils.entropyToLegacyMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
                     $("#privateKey").val(wallet.keyPair.privateKey)
                     $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
                     $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
