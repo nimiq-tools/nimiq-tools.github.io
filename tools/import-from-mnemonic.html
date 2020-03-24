@@ -1,144 +1,169 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
-        <link rel="stylesheet" href="../style.css">
-        <title>Nimiq Tools | Set of online and offline utilities</title>
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
-            <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
-        </nav>
-        <div class="container">
-            <br><br>
-            <div class="row">
-                <div class="col-xs-12 col-md-12">
-                    <div class="form-group">
-                        <label>24 words</label>
-                        <input autofocus type="text" class="form-control" id="privateKeyMnemonic" placeholder="Commas don't matter">
-                    </div>
-                </div>
-            </div>
-            <p class="alert alert-warning" role="alert" id="seedWarning" style="display: none;">
-                <strong>Warning:</strong> These 24 words represent an Account Seed. All information on this page is about the first derived address only!
-            </p>
-            <br>
-            <div class="row d-none">
-                <div class="col-xs-12 col-md-6">
-                    <h2>Public Key</h2>
-                    <div class="form-group">
-                        <label>User Friendly Address</label>
-                        <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Public Key</label>
-                        <input type="text" class="form-control" id="publicKey" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Public Key (Serialized)</label>
-                        <input type="text" class="form-control" id="publicKeySerialize" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Public Key (Hex)</label>
-                        <input type="text" class="form-control" id="publicKeyHex" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" class="form-control" id="address" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Address (Serialized)</label>
-                        <input type="text" class="form-control" id="addressSerialize" placeholder="..." disabled>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-6">
-                    <h2>Private Key</h2>
-                    <div class="form-group">
-                        <label>24 words</label>
-                        <textarea class="form-control" id="privateKeyMnemonicWords" placeholder="..." rows="4" disabled></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Private Key</label>
-                        <input type="text" class="form-control" id="privateKey" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Private Key (Serialized)</label>
-                        <input type="text" class="form-control" id="privateKeySerialize" placeholder="..." disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Private Key (Hex)</label>
-                        <input type="text" class="form-control" id="privateKeyHex" placeholder="..." disabled>
-                    </div>
-                </div>
-            </div>
-            <div class="row d-none">
-                <div class="col-xs-12 col-md-6">
-                    <h2>Wallet</h2>
-                    <div class="form-group">
-                        <label>Wallet seed</label>
-                        <textarea class="form-control" id="walletSeed" placeholder="..." rows="4" disabled></textarea>
-                    </div>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../src/Bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <title>Nimiq Tools | Set of online and offline utilities</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="../index.html">Nimiq Tools</a>
+        <a href="https://github.com/eligioo/nimiq-tools" target="_blank"><img src="../assets/github.png"></a>
+    </nav>
+    <div class="container">
+        <br><br>
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="form-group">
+                    <label>24 words</label>
+                    <input autofocus type="text" class="form-control" id="privateKeyMnemonic"
+                        placeholder="Commas don't matter">
                 </div>
             </div>
         </div>
-        <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
-        <script src="../src/Bootstrap/bootstrap.min.js"></script>
-        <script src="../src/Nimiq/nimiq.js"></script>
+        <p class="alert alert-warning" role="alert" id="seedWarning" style="display: none;">
+            <strong>Warning:</strong> These 24 words represent an Account Seed. All information on this page is about
+            the first derived address only!
+        </p>
+        <br>
+        <div class="row d-none">
+            <div class="col-xs-12 col-md-6">
+                <h2>Public Key</h2>
+                <div class="form-group">
+                    <label>User Friendly Address</label>
+                    <input type="text" class="form-control" id="publicKeyUserFriendly" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Public Key</label>
+                    <input type="text" class="form-control" id="publicKey" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Public Key (Serialized)</label>
+                    <input type="text" class="form-control" id="publicKeySerialize" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Public Key (Hex)</label>
+                    <input type="text" class="form-control" id="publicKeyHex" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" class="form-control" id="address" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Address (Serialized)</label>
+                    <input type="text" class="form-control" id="addressSerialize" placeholder="..." disabled>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <h2>Private Key</h2>
+                <div class="form-group">
+                    <label>24 words</label>
+                    <textarea class="form-control" id="privateKeyMnemonicWords" placeholder="..." rows="4"
+                        disabled></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Private Key</label>
+                    <input type="text" class="form-control" id="privateKey" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Private Key (Serialized)</label>
+                    <input type="text" class="form-control" id="privateKeySerialize" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Private Key (Hex)</label>
+                    <input type="text" class="form-control" id="privateKeyHex" placeholder="..." disabled>
+                </div>
+                <div class="form-group">
+                    <label>Mnemonic Type</label>
+                    <input type="text" class="form-control" id="mnemonicType" placeholder="..." disabled>
+                </div>
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col-xs-12 col-md-6">
+                <h2>Wallet</h2>
+                <div class="form-group">
+                    <label>Wallet seed</label>
+                    <textarea class="form-control" id="walletSeed" placeholder="..." rows="4" disabled></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../src/jQuery/jquery-3.3.1.slim.min.js"></script>
+    <script src="../src/Bootstrap/bootstrap.min.js"></script>
+    <script src="../src/Nimiq/nimiq.js"></script>
 
-        <script>
-            (async () => {
-                await Nimiq.load()
-            })()
+    <script>
+        (async () => {
+            await Nimiq.load()
+        })()
 
-            const derivationPath = "m/44'/242'/0'/0'"
+        const derivationPath = "m/44'/242'/0'/0'"
 
-            function mnemonicToKeyPair(mnemonic) {
-                mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")
-                try {
-                    const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
-                    $("#seedWarning").show()
-                    const masterKey = entropy.toExtendedPrivateKey()
-                    const derivedPrivateKey = masterKey.derivePath(derivationPath).privateKey
-                    return Nimiq.KeyPair.derive(derivedPrivateKey)
-                } catch (error) {
-                    // Ignore
-                }
-
-                try {
-                    const entropy = Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
-                    $("#seedWarning").hide()
-                    return Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
-                } catch (error) {
-                    // Ignore
-                }
-                throw new Error("Invalid mnemonic.")
+        function mnemonicToKeyPair(mnemonic) {
+            mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ")            
+            try {
+                const entropy = Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)
+                $("#seedWarning").show()
+                const masterKey = entropy.toExtendedPrivateKey()
+                const derivedPrivateKey = masterKey.derivePath(derivationPath).privateKey
+                return Nimiq.KeyPair.derive(derivedPrivateKey)
+            } catch (error) {
+                // Ignore
             }
 
-            $("#privateKeyMnemonic").on("input", () => {
-                try {
-                    const keyPair = mnemonicToKeyPair($("#privateKeyMnemonic").val())
-                    const wallet = new Nimiq.Wallet(keyPair)
-                    $(".d-none").removeClass("d-none")
-                    $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
-                    $("#publicKey").val(wallet.publicKey)
-                    $("#publicKeySerialize").val(wallet.publicKey.serialize())
-                    $("#publicKeyHex").val(wallet.publicKey.toHex())
-                    $("#address").val(wallet.publicKey.toAddress())
-                    $("#addressSerialize").val(wallet.publicKey.toAddress().serialize())
+            try {
+                const entropy = Nimiq.MnemonicUtils.legacyMnemonicToEntropy(mnemonic)
+                $("#seedWarning").hide()
+                return Nimiq.KeyPair.derive(new Nimiq.PrivateKey(entropy.serialize()))
+            } catch (error) {
+                // Ignore
+            }
+            throw new Error("Invalid mnemonic.")
+        }
 
-                    $("#privateKeyMnemonicWords").val(String(Nimiq.MnemonicUtils.entropyToLegacyMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
-                    $("#privateKey").val(wallet.keyPair.privateKey)
-                    $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
-                    $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
+        function getMnemonicType(mnemonic) {
+            mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ").split(' ')
+            const wordlist = Nimiq.MnemonicUtils.DEFAULT_WORDLIST;
+            const bits = Nimiq.MnemonicUtils._mnemonicToBits(mnemonic, wordlist);
+            let isBIP39 = true;
+            try { Nimiq.MnemonicUtils._bitsToEntropy(bits, false); } catch (e) { isBIP39 = false; }
+            let isLegacy = true;
+            try { Nimiq.MnemonicUtils._bitsToEntropy(bits, true); } catch (e) { isLegacy = false; }
 
-                    $("#walletSeed").val(`${wallet.publicKey.toHex()}${wallet.keyPair.privateKey.toHex()}`)
-                } catch (error) {
-                    $("input:disabled, textarea:disabled").val('')
-                    console.log(error)
-                }
-            })
-        </script>
-    </body>
+            if (isBIP39 && isLegacy) return 'UNKNOWN';
+            if (!isBIP39 && !isLegacy) throw new Error('Invalid checksum');
+            return isBIP39 ? 'BIP39' : 'LEGACY';
+        }
+
+        $("#privateKeyMnemonic").on("input", () => {
+            try {
+                const keyPair = mnemonicToKeyPair($("#privateKeyMnemonic").val())
+                const wallet = new Nimiq.Wallet(keyPair)
+                $(".d-none").removeClass("d-none")
+                $("#publicKeyUserFriendly").val(wallet.publicKey.toAddress().toUserFriendlyAddress())
+                $("#publicKey").val(wallet.publicKey)
+                $("#publicKeySerialize").val(wallet.publicKey.serialize())
+                $("#publicKeyHex").val(wallet.publicKey.toHex())
+                $("#address").val(wallet.publicKey.toAddress())
+                $("#addressSerialize").val(wallet.publicKey.toAddress().serialize())
+
+                $("#privateKeyMnemonicWords").val(String(Nimiq.MnemonicUtils.entropyToLegacyMnemonic(wallet.keyPair.privateKey.serialize())).replace(/,/g, ", "))
+                $("#privateKey").val(wallet.keyPair.privateKey)
+                $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
+                $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
+                $("#mnemonicType").val(getMnemonicType($("#privateKeyMnemonic").val()))
+
+                $("#walletSeed").val(`${wallet.publicKey.toHex()}${wallet.keyPair.privateKey.toHex()}`)
+            } catch (error) {
+                $("input:disabled, textarea:disabled").val('')
+                console.log(error)
+            }
+        })
+    </script>
+</body>
+
 </html>
