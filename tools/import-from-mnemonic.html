@@ -80,6 +80,11 @@
                     <label>Mnemonic Type</label>
                     <input type="text" class="form-control" id="mnemonicType" placeholder="..." disabled>
                 </div>
+                <div class="form-group">
+                    <label>Legacy from BIP39</label>
+                    <textarea class="form-control" id="walletLegacy" placeholder="..." rows="4"
+                        disabled></textarea>
+                </div>
             </div>
         </div>
         <div class="row d-none">
@@ -139,6 +144,11 @@
             return isBIP39 ? 'BIP39' : 'LEGACY';
         }
 
+        function getLegacyFromBIP(mnemonic){
+            mnemonic = mnemonic.replace(/, /g, " ").replace(/,/g, " ").split(' ')
+            return Nimiq.MnemonicUtils.entropyToLegacyMnemonic(Nimiq.MnemonicUtils.mnemonicToEntropy(mnemonic)).join(' ')
+        }
+
         $("#privateKeyMnemonic").on("input", () => {
             try {
                 const keyPair = mnemonicToKeyPair($("#privateKeyMnemonic").val())
@@ -156,6 +166,7 @@
                 $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
                 $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
                 $("#mnemonicType").val(getMnemonicType($("#privateKeyMnemonic").val()))
+                $("#walletLegacy").val(getLegacyFromBIP($("#privateKeyMnemonic").val()))
 
                 $("#walletSeed").val(`${wallet.publicKey.toHex()}${wallet.keyPair.privateKey.toHex()}`)
             } catch (error) {
