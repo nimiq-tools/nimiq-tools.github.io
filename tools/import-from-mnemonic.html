@@ -133,7 +133,7 @@
                     $("#privateKeySerialize").val(wallet.keyPair.privateKey.serialize())
                     $("#privateKeyHex").val(wallet.keyPair.privateKey.toHex())
 
-                    $("#walletSeed").val(`${Nimiq.BufferUtils.toHex(wallet.keyPair.serialize())}`)
+                    $("#walletSeed").val(`${wallet.privateKey.toHex()}${wallet.keyPair.publicKey.toHex()}`)
                 } catch (error) {
                     $("input:disabled, textarea:disabled").val('')
                     console.log(error)
